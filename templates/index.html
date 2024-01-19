@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="\static\CSS\style.css" />
+    <title> Запись пациента </title>
+
+    {% macro render_table(dates, relation, ind, doctors) %}
+    {% set n = relation|length %}
+    {% set times = 11 %}
+    <table>
+        <!-- формируем заголовок таблицы (имена столбцов) -->
+        <tr>
+            <th></th>
+            {% for i in range(len(dates)) %}
+            <th>{{dates.loc[i, "date"]}}({{dates.loc[i, "weekday"]}})</th>
+            {% endfor %}
+        </tr>
+
+        <tbody>
+        <!-- для всех строк таблицы (времен) -->
+        {% for j in range(times) %}
+        <tr>
+            <td>{{relation.loc[j, "time"]}}</td>
+            <!-- выводим значение каждого столбца (дат) -->
+            {% for i in range(len(dates)) %}
+            {% if relation.loc[(i*times)+j, "count"] == 0 %}
+            <td></td>
+            {% else %}
+            {% if (i*times)+j == ind %}
+            <td class="mar2">
+                <form action="{{url_for('index')}}" method ="get">
+                {% for k in range(len(doctors)) %}
+                    <input type="radio" name="doc_id" value={{doctors.loc[k,"reception_id"]}} checked="checked"/>{{doctors.loc[k, "doctor_name"]}}<br>
+                {% endfor %}
+                    <br>Ваш полис: <input type="text" name="number" size="10"><br>
+                    <br><input type="submit" value="Записаться">
+                </form>
+            </td>
+            {% else %}
+            <td class="mar">
+                <button class="button" name="watch" value={{(i*times)+j}}>
+                    {{ relation.loc[(i*times)+j, "count"] }}
+                    {% if relation.loc[(i*times)+j, "count"] == 1 %} врач
+                    {% elif relation.loc[(i*times)+j, "count"] < 5 %} врача
+                    {% else %} врачей
+                    {% endif %}
+                </button>
+                {% endif %}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endmacro %}
+    {% macro make_field() %}
+        <!-- Создаем поле со списком -->
+        <select name="specific">
+            {% set n = len(combo_box) %}
+            {% for i in range(n) %}
+            {% if spec == combo_box.iloc[i,0] %}
+            <option selected value={{combo_box.iloc[i,0]}}>
+                {% else %}
+            <option value={{combo_box.iloc[i,0]}}>
+                {% endif %}
+                {{ combo_box.iloc[i,0] }}
+            </option>
+            {% endfor %}
+        </select>
+    {% endmacro %}
+</head>
+<body>
+<div class="menu">
+    <ul>
+        <li class ="active"><a href={{url_for("index")}}>Запись</a></li>
+
+    </ul>
+</div>
+<div class="block">
+    <p>
+    <form action="{{url_for('index')}}" method ="get"> Специализация:
+    {{ make_field() }}
+    <input type="submit" value="Выбрать">
+</form>
+    <p>
+    <form action ="{{url_for('index')}}" method="get">
+        Запись с: <input type="date" name="data" value={{data}}> на <input type="number" name="days" value={{days}} min="1" max="30"> дней
+        <input type="submit" value="Показать">
+    </form>
+    </p>
+    <form action="{{url_for('index')}}" method ="get">
+        {{ render_table(dates, schedule, ind, doctors) }}
+    </form>
+    <p>
+    </p>
+</div>
+</body>
+</html>

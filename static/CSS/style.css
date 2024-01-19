@@ -1,0 +1,97 @@
+/* меню страниц */
+.menu {
+background-color: #f1f1f1;
+box-shadow: 4px 5px 10px rgba(0, 0, 0, 0.4);
+width: 100%;
+}
+.menu li {
+display: inline-block;
+vertical-align: top;
+padding: 10px;
+
+}
+.menu a {
+text-decoration: none;
+
+}
+.menu li:hover {
+background-color: PaleGreen;;
+cursor: pointer;
+
+}
+.menu ul {
+padding: 0px;
+}
+.active{
+background-color: PaleGreen;;
+
+}
+.active a:visited{
+
+}
+.menu a:hover{
+
+}
+.block {
+padding: 10px 20px;
+}
+table{
+    margin: 20px 5px;
+	border-collapse:collapse;
+}
+table td, th{
+	padding: 5px 10px;
+	border: thin solid grey;
+}
+table th {
+    background: LightGray;
+}
+.line {
+float: left;
+margin-right: 5px;
+}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+.container div {
+    margin: 5px;
+    box-shadow: 4px 5px 10px rgba(0, 0, 0, 0.3);
+}
+.line {
+    display:flex;
+    flex-direction: row;
+    align-items:stretch;
+    box-shadow: 4px 5px 10px rgba(0, 0, 0, 0.3);
+    margin: 5px;
+    padding: 10px;
+    height: 100%;
+}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    padding: 10px;
+}
+.elem {
+    box-shadow: 4px 5px 10px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    width: 300px;
+}
+.button {
+  background-color: PaleGreen; /* Green */
+  height:28px;
+  width :100%;
+  margin: 0;
+  border: none;
+
+}
+.mar {
+padding: 0;
+background-color:PaleGreen;
+}
+.mar2 {
+padding: 5px;
+background-color:PaleGreen;
+text-align: center;
+}
