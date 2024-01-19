@@ -91,7 +91,6 @@ FOREIGN KEY (patient_id) REFERENCES patient(patient_id)
 
 make_timetable(con, '2024-01-17')
 make_reception(con)
-
 print(pd.read_sql('''
 SELECT * FROM doctor
 ''', con))

@@ -12,6 +12,17 @@ def get_doctors(conn, data, time, spec):
     AND specification = :spec AND patient_id = -1;
     ''', conn, params={"data": data, "time":time, "spec":spec})
 
+def get_times(conn, data, name, spec):
+    return pandas.read_sql( ''' 
+    SELECT reception_id, reception_time
+    FROM doctor
+    JOIN timetable USING (doctor_id)
+    JOIN timetable_date USING (timetable_id)
+    JOIN reception USING (timetable_date_id)
+    WHERE receipt_date = :data AND doctor_name = :name
+    AND specification = :spec AND patient_id = -1;
+    ''', conn, params={"data": data, "name":name, "spec":spec})
+
 def search_patient(conn, number):
     return pandas.read_sql( ''' 
     SELECT patient_id
@@ -54,12 +65,28 @@ def get_all_times(conn, data, days):
     ORDER BY date, time;
     ''', conn, params={"data": data, "days":days})
 
+def get_all_doctors(conn, data, days, spec):
+    return pandas.read_sql( ''' 
+    SELECT DISTINCT receipt_date AS date, weekday, doctor_name
+    FROM timetable_date, doctor
+    JOIN timetable USING (timetable_id)
+    WHERE receipt_date < DATE(:data, '+'''+days+''' day') AND receipt_date >= :data
+    AND specification = :spec;
+    ''', conn, params={"spec": spec, "data": data, "days":days})
+
+def get_amount_doctors(conn, spec):
+    return pandas.read_sql( ''' 
+    SELECT COUNT(doctor_name)
+    FROM doctor
+    WHERE specification = :spec;
+    ''', conn, params={"spec": spec})
+
 def get_specific(conn):
     return pandas.read_sql( ''' 
     SELECT DISTINCT specification FROM doctor 
     ''', conn)
 
-def get_schedule(conn, data, days, spec):
+def get_schedule_days(conn, data, days, spec):
     return pandas.read_sql( '''
     SELECT DISTINCT receipt_date AS date, weekday, reception_time AS time, COUNT(timetable.doctor_id) AS count
     FROM timetable_date
@@ -70,6 +97,19 @@ def get_schedule(conn, data, days, spec):
     AND specification = :spec AND patient_id = -1
     GROUP BY date, time
     ORDER BY date, time;
+    ''', conn, params={"data": data, "days":days, "spec":spec})
+
+def get_schedule_doctors(conn, data, days, spec):
+    return pandas.read_sql( '''
+    SELECT DISTINCT receipt_date AS date, weekday, doctor_name, COUNT(reception.reception_time) AS count
+    FROM timetable_date
+    JOIN timetable USING (timetable_id)
+    JOIN doctor USING (doctor_id)
+    JOIN reception USING (timetable_date_id)
+    WHERE receipt_date < DATE(:data, '+'''+days+''' day') AND receipt_date >= :data
+    AND specification = :spec AND patient_id = -1
+    GROUP BY doctor_id, date
+    ORDER BY date, reception_time;
     ''', conn, params={"data": data, "days":days, "spec":spec})
 
 def make_timetable(conn, p_first_date):

@@ -4,9 +4,8 @@
     <link rel="stylesheet" type="text/css" href="\static\CSS\style.css" />
     <title> Запись пациента </title>
 
-    {% macro render_table(dates, relation, ind, doctors) %}
+    {% macro render_table(dates, relation, ind, doctors, times) %}
     {% set n = relation|length %}
-    {% set times = 11 %}
     <table>
         <!-- формируем заголовок таблицы (имена столбцов) -->
         <tr>
@@ -20,17 +19,17 @@
         <!-- для всех строк таблицы (времен) -->
         {% for j in range(times) %}
         <tr>
-            <td>{{relation.loc[j, "time"]}}</td>
+            <td>{{relation.iloc[j, 2]}}</td>
             <!-- выводим значение каждого столбца (дат) -->
             {% for i in range(len(dates)) %}
-            {% if relation.loc[(i*times)+j, "count"] == 0 %}
+            {% if relation.iloc[(i*times)+j, 3] == 0 %}
             <td></td>
             {% else %}
             {% if (i*times)+j == ind %}
             <td class="mar2">
                 <form action="{{url_for('index')}}" method ="get">
                 {% for k in range(len(doctors)) %}
-                    <input type="radio" name="doc_id" value={{doctors.loc[k,"reception_id"]}} checked="checked"/>{{doctors.loc[k, "doctor_name"]}}<br>
+                    <input type="radio" name="doc_id" value={{doctors.iloc[k,0]}} checked="checked"/>{{doctors.iloc[k, 1]}}<br>
                 {% endfor %}
                     <br>Ваш полис: <input type="text" name="number" size="10"><br>
                     <br><input type="submit" value="Записаться">
@@ -39,10 +38,13 @@
             {% else %}
             <td class="mar">
                 <button class="button" name="watch" value={{(i*times)+j}}>
-                    {{ relation.loc[(i*times)+j, "count"] }}
-                    {% if relation.loc[(i*times)+j, "count"] == 1 %} врач
-                    {% elif relation.loc[(i*times)+j, "count"] < 5 %} врача
-                    {% else %} врачей
+                    {{ relation.iloc[(i*times)+j, 3] }}
+                    {% if relation.iloc[(i*times)+j, 3] == 1 %}
+                    {% if menu_ind == '1' %} врач {% else %} запись {% endif %}
+                    {% elif relation.iloc[(i*times)+j, 3] < 5 %}
+                    {% if menu_ind == '1' %} врача {% else %} записи {% endif %}
+                    {% else %}
+                    {% if menu_ind == '1' %} врачей {% else %} записей {% endif %}
                     {% endif %}
                 </button>
                 {% endif %}
@@ -71,12 +73,7 @@
     {% endmacro %}
 </head>
 <body>
-<div class="menu">
-    <ul>
-        <li class ="active"><a href={{url_for("index")}}>Запись</a></li>
 
-    </ul>
-</div>
 <div class="block">
     <p>
     <form action="{{url_for('index')}}" method ="get"> Специализация:
@@ -88,9 +85,24 @@
         Запись с: <input type="date" name="data" value={{data}}> на <input type="number" name="days" value={{days}} min="1" max="30"> дней
         <input type="submit" value="Показать">
     </form>
+    <div class="menu">
+        <form action ="{{url_for('index')}}" method="get">
+        <ul>
+            {% if menu_ind == '1' %}
+            <li class ="active"><button class="unact" name="menu" value=1>Дни</button></a></li>
+            <li><button class="unact" name="menu" value=2>Врачи</button></a></li>
+            {% else %}
+            <li><button class="unact" name="menu" value=1>Дни</button></a></li>
+            <li class ="active"><button class="unact" name="menu" value=2>Врачи</button></a></li>
+            {% endif %}
+
+        </ul>
+        </form>
+    </div>
+
     </p>
     <form action="{{url_for('index')}}" method ="get">
-        {{ render_table(dates, schedule, ind, doctors) }}
+        {{ render_table(dates, schedule, ind, doctors, times) }}
     </form>
     <p>
     </p>
